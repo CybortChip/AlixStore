@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Función auxiliar: verifica que el usuario haya iniciado sesión.
+    // Opcional: si deseas restringir aún más a un único correo o UID específico,
+    // descomenta la condición de email o uid:
+    function isVendedora() {
+      return request.auth != null;
+      // && request.auth.token.email == "tucorreo@ejemplo.com";
+    }
+
+    // Colección pública del catálogo de productos
+    match /productos/{productoId} {
+      // Cualquier visitante de internet puede leer el catálogo
+      allow read: if true;
+
+      // Solo la vendedora autenticada puede crear o editar productos
+      allow create, update: if isVendedora()
+        && request.resource.data.n is string
+        && request.resource.data.n.size() > 0
+        && request.resource.data.n.size() <= 140
+        && request.resource.data.pr is string
+        && request.resource.data.d is string
+        && request.resource.data.s is bool;
+
+      // Solo la vendedora autenticada puede borrar productos
+      allow delete: if isVendedora();
+    }
+
+    // Contador de visitas real en tiempo real
+    match /config/visitas {
+      allow read: if true;
+      // Permite inicializar el contador o incrementarlo de 1 en 1
+      allow create: if request.resource.data.keys().hasOnly(['count'])
+        && request.resource.data.count is int;
+      allow update: if request.resource.data.keys().hasOnly(['count'])
+        && request.resource.data.count == resource.data.count + 1;
+    }
+  }
+}

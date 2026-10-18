@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>✨ Mi Tiendita ✨</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#ffd1f0;--bg2:#e9c8ff;--card:#fff;--ink:#5a0a5a;--pink:#ff3fb4;--lilac:#b366ff;--aqua:#27e0d4;--star:#fff36b}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#3a0b44;--bg2:#1f0b3d;--card:#4b1a5c;--ink:#ffe3f7}}
+:root[data-theme="dark"]{--bg:#3a0b44;--bg2:#1f0b3d;--card:#4b1a5c;--ink:#ffe3f7}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Comic Sans MS","Chalkboard SE","Comic Neue",cursive,sans-serif;color:var(--ink);background:var(--bg);
+background-image:radial-gradient(var(--star) 2px,transparent 2.5px),radial-gradient(var(--pink) 2px,transparent 2.5px);
+background-size:46px 46px,70px 70px;background-position:0 0,23px 31px;overflow-x:hidden}
+.wrap{max-width:900px;margin:0 auto;padding:12px}
+.marquee{overflow:hidden;white-space:nowrap;background:linear-gradient(90deg,var(--pink),var(--lilac),var(--aqua));border:3px ridge #fff;border-radius:10px;color:#fff;font-weight:bold;padding:6px 0}
+.marquee span{display:inline-block;padding-left:100%;animation:m 14s linear infinite}
+@keyframes m{to{transform:translateX(-100%)}}
+h1{font-size:clamp(2rem,9vw,3.6rem);text-align:center;margin:14px 0 4px;color:#fff;
+text-shadow:2px 2px 0 var(--pink),4px 4px 0 var(--lilac),0 0 18px #fff;letter-spacing:2px;animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-6px) rotate(-1deg)}}
+.sub{text-align:center;font-style:italic;margin:0 0 10px}
+.tw{animation:tw 1.2s steps(2) infinite;display:inline-block;vertical-align:middle}
+.tw:nth-child(2n){animation-delay:.4s}.tw:nth-child(3n){animation-delay:.8s}
+@keyframes tw{50%{opacity:.15;transform:scale(.6) rotate(40deg)}}
+.gif-ico{width:22px;height:22px;vertical-align:middle;image-rendering:pixelated;margin:0 2px}
+h1 .gif-ico{width:34px;height:34px}
+nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+button,.btn{font:inherit;font-weight:bold;cursor:pointer;color:#fff;border:3px outset #fff;border-radius:999px;padding:10px 20px;
+background:linear-gradient(#ff9be0,var(--pink) 55%,#d4129a);text-shadow:1px 1px 0 #8a0a63;box-shadow:0 0 12px var(--pink);text-decoration:none;display:inline-block;text-align:center}
+button:active,.btn:active{border-style:inset}
+button:disabled{opacity:.6;cursor:wait}
+button.alt,.btn.alt{background:linear-gradient(#c7f,var(--lilac) 55%,#7b2fd0);box-shadow:0 0 12px var(--lilac)}
+button.big{font-size:1.4rem;padding:16px 28px;width:100%}
+.panel{background:var(--card);border:4px double var(--pink);border-radius:18px;padding:14px;box-shadow:0 0 0 3px var(--lilac),0 0 22px var(--aqua);margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin-top:12px}
+.item{background:var(--card);padding:10px 10px 14px;border:3px solid var(--aqua);border-radius:6px;box-shadow:4px 4px 0 var(--pink);position:relative;transition:transform .2s}
+.item:nth-child(odd){transform:rotate(-1.5deg)}.item:nth-child(even){transform:rotate(1.5deg)}
+.item:hover{transform:rotate(0) scale(1.04)}
+.ph{aspect-ratio:1/1;border:2px dashed var(--lilac);display:grid;place-items:center;font-size:4rem;overflow:hidden;background:linear-gradient(135deg,#ffe1f5,#d9f9ff)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.item h3{margin:8px 0 2px;font-size:1.1rem;color:var(--pink)}
+.price{font-weight:bold;color:var(--lilac);font-size:1.15rem}
+.item p{margin:4px 0 0;font-size:.9rem;white-space:pre-line}
+.sold{position:absolute;top:30%;left:-6px;right:-6px;text-align:center;font-size:1.8rem;font-weight:bold;color:#fff;background:rgba(255,63,180,.9);transform:rotate(-12deg);border-block:3px dashed #fff;display:none;pointer-events:none}
+.item.vendido .sold{display:block}.item.vendido .ph{filter:grayscale(.7)}
+.tools{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.tools button{padding:4px 9px;font-size:.78rem;flex:1 1 auto}
+label{display:block;font-weight:bold;margin:12px 0 4px;font-size:1.15rem}
+input,textarea{width:100%;font:inherit;font-size:1.1rem;padding:10px;border:3px inset var(--lilac);border-radius:10px;background:#fff;color:#4a0a4a}
+.drop{display:block;text-align:center;border:4px dashed var(--pink);border-radius:16px;padding:22px;font-size:1.3rem;cursor:pointer;background:rgba(255,63,180,.08)}
+.drop img{max-width:100%;max-height:220px;border-radius:10px;display:block;margin:8px auto 0}
+.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:18px 0 6px}
+.b88{width:88px;height:31px;display:grid;place-items:center;font-size:.65rem;font-weight:bold;color:#fff;border:2px outset #fff;background:linear-gradient(var(--aqua),#0aa);text-align:center;line-height:1.05}
+.b88.p{background:linear-gradient(var(--pink),#a0107a)}.b88.l{background:linear-gradient(var(--lilac),#5a1fb0)}
+.counter{text-align:center;font-family:"Courier New",monospace}
+.counter b{background:#000;color:#3f3;padding:2px 8px;letter-spacing:4px;border:2px inset #888}
+.hide{display:none !important}
+.spark{position:fixed;pointer-events:none;z-index:99;animation:fall .9s forwards;font-size:16px}
+.spark img{width:18px;height:18px;image-rendering:pixelated;display:block}
+@keyframes fall{to{transform:translateY(34px) scale(.2) rotate(180deg);opacity:0}}
+.note{font-size:.85rem;text-align:center;opacity:.85}
+.secret-link{color:inherit;text-decoration:none;opacity:.55;padding:0 4px;transition:opacity .2s}
+.secret-link:hover{opacity:1}
+.admin-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.msg-err{color:#d4129a;font-weight:bold;text-align:center;margin:8px 0 0}
+.form-actions{display:flex;gap:10px;flex-direction:column;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="marquee">
+    <span>
+      <img src="assets/gifs/sparkle.gif" alt="✨" class="gif-ico" onerror="this.outerHTML='✨'"> ¡Bienvenid@ a mi tiendita! <img src="assets/gifs/sparkle.gif" alt="✨" class="gif-ico" onerror="this.outerHTML='✨'"> &nbsp;
+      <img src="assets/gifs/heart.gif" alt="💖" class="gif-ico" onerror="this.outerHTML='💖'"> Todo con mucho amor <img src="assets/gifs/heart.gif" alt="💖" class="gif-ico" onerror="this.outerHTML='💖'"> &nbsp;
+      <img src="assets/gifs/butterfly.gif" alt="🦋" class="gif-ico" onerror="this.outerHTML='🦋'"> Nuevos productos cada semana <img src="assets/gifs/butterfly.gif" alt="🦋" class="gif-ico" onerror="this.outerHTML='🦋'"> &nbsp;
+      <img src="assets/gifs/star.gif" alt="⭐" class="gif-ico" onerror="this.outerHTML='⭐'"> Última actualización: hoy <img src="assets/gifs/star.gif" alt="⭐" class="gif-ico" onerror="this.outerHTML='⭐'">
+    </span>
+  </div>
+
+  <h1>
+    <span class="tw"><img src="assets/gifs/star.gif" alt="✦" class="gif-ico" onerror="this.outerHTML='✦'"></span>
+    Mi Tiendita
+    <span class="tw"><img src="assets/gifs/star.gif" alt="✦" class="gif-ico" onerror="this.outerHTML='✦'"></span>
+  </h1>
+  <p class="sub">
+    <img src="assets/gifs/butterfly.gif" alt="🦋" class="gif-ico" onerror="this.outerHTML='🦋'">
+    cositas lindas buscan un nuevo hogar
+    <img src="assets/gifs/butterfly.gif" alt="🦋" class="gif-ico" onerror="this.outerHTML='🦋'">
+  </p>
+
+  <!-- Barra visible únicamente cuando se está en la ruta #/admin o con sesión de vendedora activa -->
+  <nav id="adminNav" class="hide">
+    <a href="#/" class="btn" id="tabV">💖 Ver catálogo</a>
+    <a href="#/admin" class="btn alt" id="tabA">🔒 Mi panel</a>
+  </nav>
+
+  <!-- Panel privado de la vendedora (accesible desde #/admin) -->
+  <section id="admin" class="hide">
+    <div class="panel" id="login">
+      <h2>🔐 Entrar a mi panel</h2>
+      <label for="u">Correo electrónico</label>
+      <input id="u" type="email" autocomplete="username" placeholder="vendedora@correo.com">
+      <label for="p">Contraseña</label>
+      <input id="p" type="password" autocomplete="current-password" placeholder="••••••••">
+      <p id="loginErr" class="msg-err hide"></p>
+      <p id="cfgNotice" class="note hide">⚠️ Configura tus credenciales de Firebase en <code>FIREBASE_CONFIG</code> dentro del HTML para activar la base de datos en internet.</p>
+      <br>
+      <button class="big" id="enter">Entrar ✨</button>
+    </div>
+
+    <div class="panel hide" id="dash">
+      <div class="admin-bar">
+        <span>✨ <b>Panel de vendedora</b></span>
+        <button id="logoutBtn" class="alt" style="padding:6px 14px;font-size:.85rem">Salir 🚪</button>
+      </div>
+      <button class="big" id="addBtn">➕ Agregar producto</button>
+      <div id="form" class="hide">
+        <label class="drop" for="f">📷 Toca aquí para subir la foto<div id="pv"></div></label>
+        <input id="f" type="file" accept="image/*" class="hide">
+        <label for="n">Nombre del producto</label><input id="n" placeholder="Ej: Lámpara vintage">
+        <label for="pr">Precio</label><input id="pr" placeholder="Ej: $250">
+        <label for="d">Descripción</label><textarea id="d" rows="3" placeholder="Cuéntanos de qué se trata..."></textarea>
+        <div class="form-actions">
+          <button class="big" id="pub">🚀 Publicar</button>
+          <button class="alt hide" id="cancelEdit" type="button">✖ Cancelar edición</button>
+        </div>
+      </div>
+      <p class="note">Abajo en el catálogo verás los botones para editar (✏️), marcar vendido (✔) o borrar (🗑) cada producto.</p>
+    </div>
+  </section>
+
+  <!-- Catálogo público -->
+  <section id="vitrina">
+    <div id="grid" class="grid"></div>
+  </section>
+
+  <div class="badges">
+    <div class="b88">BEST VIEWED<br>IN 800x600</div>
+    <div class="b88 p"><img src="assets/gifs/heart.gif" alt="💖" style="width:11px;height:11px;vertical-align:middle" onerror="this.outerHTML='💖'"> MADE WITH<br>LOVE <img src="assets/gifs/heart.gif" alt="💖" style="width:11px;height:11px;vertical-align:middle" onerror="this.outerHTML='💖'"></div>
+    <div class="b88 l"><img src="assets/gifs/star.gif" alt="★" style="width:11px;height:11px;vertical-align:middle" onerror="this.outerHTML='★'"> COOL SITE <img src="assets/gifs/star.gif" alt="★" style="width:11px;height:11px;vertical-align:middle" onerror="this.outerHTML='★'"></div>
+  </div>
+  <p class="counter">Eres el visitante número <b id="cnt">004217</b></p>
+  <p class="note">🌐 Página en construcción 🚧 ✦ ¡Gracias por visitar! <a href="#/admin" class="secret-link" title="Panel de la vendedora">✦</a></p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDoc, setDoc, increment } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
+
+/* =========================================================================
+   1. CONFIGURACIÓN DE FIREBASE
+   Reemplaza estos valores por los de tu proyecto en https://console.firebase.google.com
+   ========================================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCYYDkagpld2KrAlgGMYOBvnX_GVysUS6g",
+  authDomain: "tienda-onlie.firebaseapp.com",
+  databaseURL: "https://tienda-onlie-default-rtdb.firebaseio.com",
+  projectId: "tienda-onlie",
+  storageBucket: "tienda-onlie.firebasestorage.app",
+  messagingSenderId: "900936906023",
+  appId: "1:900936906023:web:d56eb9b42fee800afb6502",
+  measurementId: "G-HHX8L9Q4KH"
+};
+const FIREBASE_CONFIG = firebaseConfig;
+const isFirebaseConfigured = Boolean(
+  FIREBASE_CONFIG.apiKey &&
+  !FIREBASE_CONFIG.apiKey.includes("REEMPLAZAR") &&
+  FIREBASE_CONFIG.projectId !== "tu-proyecto"
+);
+
+// Productos iniciales de muestra (se muestran mientras configuras Firebase)
+const fallbackItems = [
+  { id: "demo1", n: "Lámpara vintage", pr: "$350", d: "Luz cálida, funciona perfecto.", e: "🪔", s: false },
+  { id: "demo2", n: "Set de tazas floreadas", pr: "$180", d: "6 piezas, sin ningún detalle.", e: "☕", s: false },
+  { id: "demo3", n: "Espejo con marco rosa", pr: "$420", d: "Ideal para recámara.", e: "🪞", s: true },
+  { id: "demo4", n: "Maceta de cerámica", pr: "$90", d: "Pintada a mano.", e: "🪴", s: false }
+];
+
+let app = null, auth = null, db = null, storage = null;
+if (isFirebaseConfigured) {
+  app = initializeApp(FIREBASE_CONFIG);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
+}
+
+let items = isFirebaseConfigured ? [] : fallbackItems.slice();
+let isAdmin = false;
+let photoDataUrl = "";
+let photoBlob = null;
+let editingId = null;
+
+function $(id) { return document.getElementById(id); }
+function esc(t) {
+  const x = document.createElement("div");
+  x.textContent = t || "";
+  return x.innerHTML;
+}
+
+/* =========================================================================
+   2. RENDERIZADO DEL CATÁLOGO (CON LAZY LOADING Y BOTÓN DE EDITAR)
+   ========================================================================= */
+function render() {
+  if (!items.length) {
+    $("grid").innerHTML =
+      '<div class="panel" style="grid-column:1/-1;text-align:center">' +
+        '<p class="note">✨ Aún no hay productos publicados en la vitrina ✨</p>' +
+        (isAdmin && isFirebaseConfigured
+          ? '<button id="seedBtn" class="alt" type="button">🎁 Cargar los 4 productos de muestra</button>'
+          : '') +
+      '</div>';
+    const seedBtn = $("seedBtn");
+    if (seedBtn) {
+      seedBtn.onclick = async function () {
+        seedBtn.disabled = true;
+        seedBtn.textContent = "⏳ Cargando...";
+        try {
+          const baseTime = Date.now();
+          for (let i = 0; i < fallbackItems.length; i++) {
+            const p = fallbackItems[i];
+            await addDoc(collection(db, "productos"), {
+              n: p.n,
+              pr: p.pr,
+              d: p.d,
+              e: p.e,
+              img: "",
+              storagePath: "",
+              s: p.s,
+              createdAt: baseTime - i * 1000
+            });
+          }
+        } catch (err) {
+          alert("Error al cargar productos de muestra: " + err.message);
+          seedBtn.disabled = false;
+        }
+      };
+    }
+    return;
+  }
+  $("grid").innerHTML = items.map(function (o) {
+    const imgHtml = o.img
+      ? '<img src="' + esc(o.img) + '" alt="' + esc(o.n) + '" loading="lazy" decoding="async">'
+      : (esc(o.e) || "🎁");
+    const toolsHtml = isAdmin
+      ? '<div class="tools">' +
+          '<button data-s="' + esc(o.id) + '" class="alt">' + (o.s ? "↩ Disponible" : "✔ Vendido") + '</button>' +
+          '<button data-e="' + esc(o.id) + '" class="alt" title="Editar">✏️ Editar</button>' +
+          '<button data-x="' + esc(o.id) + '" title="Borrar">🗑</button>' +
+        '</div>'
+      : '';
+    return (
+      '<div class="item' + (o.s ? ' vendido' : '') + '">' +
+        '<div class="ph">' + imgHtml + '</div>' +
+        '<div class="sold">¡VENDIDO!</div>' +
+        '<h3>' + esc(o.n) + '</h3>' +
+        '<div class="price">' + esc(o.pr) + '</div>' +
+        '<p>' + esc(o.d) + '</p>' +
+        toolsHtml +
+      '</div>'
+    );
+  }).join("");
+}
+
+/* =========================================================================
+   3. RUTA PRIVADA (#/admin) Y NAVEGACIÓN
+   ========================================================================= */
+function handleRoute() {
+  const inAdminRoute = window.location.hash === "#/admin";
+  $("admin").classList.toggle("hide", !inAdminRoute);
+  // Mantiene visible el catálogo debajo del panel cuando la vendedora ya entró
+  // para que pueda tocar Editar / Vendido / Borrar directamente sobre las polaroids.
+  $("vitrina").classList.toggle("hide", inAdminRoute && !isAdmin);
+  $("adminNav").classList.toggle("hide", !(inAdminRoute || isAdmin));
+  if (!isFirebaseConfigured) {
+    $("cfgNotice").classList.remove("hide");
+  }
+  render();
+}
+window.addEventListener("hashchange", handleRoute);
+
+/* =========================================================================
+   4. AUTENTICACIÓN CON FIREBASE AUTH
+   ========================================================================= */
+if (isFirebaseConfigured) {
+  onAuthStateChanged(auth, function (user) {
+    isAdmin = Boolean(user);
+    $("login").classList.toggle("hide", isAdmin);
+    $("dash").classList.toggle("hide", !isAdmin);
+    handleRoute();
+  });
+
+  // Escucha en tiempo real de los productos en Firestore
+  const q = query(collection(db, "productos"), orderBy("createdAt", "desc"));
+  onSnapshot(q, function (snap) {
+    items = snap.docs.map(function (d) {
+      return Object.assign({ id: d.id }, d.data());
+    });
+    render();
+  }, function (err) {
+    console.error("Error leyendo Firestore:", err);
+  });
+}
+
+$("enter").onclick = async function () {
+  const email = $("u").value.trim();
+  const pass = $("p").value;
+  $("loginErr").classList.add("hide");
+
+  if (!isFirebaseConfigured) {
+    // Modo prueba local si aún no se configuran las credenciales de Firebase
+    isAdmin = true;
+    $("login").classList.add("hide");
+    $("dash").classList.remove("hide");
+    handleRoute();
+    return;
+  }
+
+  if (!email || !pass) {
+    $("loginErr").textContent = "Por favor escribe tu correo y contraseña 💖";
+    $("loginErr").classList.remove("hide");
+    return;
+  }
+
+  try {
+    $("enter").disabled = true;
+    await signInWithEmailAndPassword(auth, email, pass);
+    $("p").value = "";
+  } catch (err) {
+    $("loginErr").textContent = "Correo o contraseña incorrectos 🔒";
+    $("loginErr").classList.remove("hide");
+  } finally {
+    $("enter").disabled = false;
+  }
+};
+
+$("logoutBtn").onclick = async function () {
+  resetForm();
+  if (isFirebaseConfigured) {
+    await signOut(auth);
+  } else {
+    isAdmin = false;
+    $("login").classList.remove("hide");
+    $("dash").classList.add("hide");
+  }
+  window.location.hash = "#/";
+};
+
+/* =========================================================================
+   5. REDUCCIÓN AUTOMÁTICA DE FOTOS Y FORMULARIO (CREAR Y EDITAR)
+   ========================================================================= */
+function resetForm() {
+  editingId = null;
+  photoDataUrl = "";
+  photoBlob = null;
+  ["n", "pr", "d"].forEach(function (i) { $(i).value = ""; });
+  $("pv").innerHTML = "";
+  $("f").value = "";
+  $("pub").textContent = "🚀 Publicar";
+  $("cancelEdit").classList.add("hide");
+  $("form").classList.add("hide");
+}
+
+$("addBtn").onclick = function () {
+  if (editingId) {
+    resetForm();
+  }
+  $("form").classList.toggle("hide");
+};
+
+$("cancelEdit").onclick = function () {
+  resetForm();
+};
+
+$("f").onchange = function (e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = function () {
+    const im = new Image();
+    im.onload = function () {
+      const m = 700;
+      const k = Math.min(1, m / Math.max(im.width, im.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(im.width * k);
+      c.height = Math.round(im.height * k);
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+      photoDataUrl = c.toDataURL("image/jpeg", 0.8);
+      $("pv").innerHTML = '<img src="' + photoDataUrl + '" alt="Vista previa">';
+      c.toBlob(function (blob) {
+        photoBlob = blob;
+      }, "image/jpeg", 0.8);
+    };
+    im.src = r.result;
+  };
+  r.readAsDataURL(file);
+};
+
+$("pub").onclick = async function () {
+  const nombre = $("n").value.trim();
+  const precio = $("pr").value.trim();
+  const desc = $("d").value.trim();
+
+  if (!nombre) {
+    alert("¡Ponle nombre al producto! 💖");
+    return;
+  }
+
+  $("pub").disabled = true;
+  const originalText = $("pub").textContent;
+  $("pub").textContent = "⏳ Guardando...";
+
+  try {
+    if (isFirebaseConfigured) {
+      let imgUrl = "";
+      let storagePath = "";
+      const existing = editingId ? items.find(function (o) { return o.id === editingId; }) : null;
+      if (existing) {
+        imgUrl = existing.img || "";
+        storagePath = existing.storagePath || "";
+      }
+
+      // Si seleccionó una foto nueva, subirla a Firebase Cloud Storage
+      if (photoBlob) {
+        if (existing && existing.storagePath) {
+          try { await deleteObject(storageRef(storage, existing.storagePath)); } catch (_) {}
+        }
+        storagePath = "productos/" + Date.now() + "_" + Math.random().toString(36).slice(2, 8) + ".jpg";
+        const sRef = storageRef(storage, storagePath);
+        await uploadBytes(sRef, photoBlob, { contentType: "image/jpeg" });
+        imgUrl = await getDownloadURL(sRef);
+      }
+
+      if (editingId) {
+        await updateDoc(doc(db, "productos", editingId), {
+          n: nombre,
+          pr: precio,
+          d: desc,
+          img: imgUrl,
+          storagePath: storagePath
+        });
+      } else {
+        await addDoc(collection(db, "productos"), {
+          n: nombre,
+          pr: precio,
+          d: desc,
+          e: "🎁",
+          img: imgUrl,
+          storagePath: storagePath,
+          s: false,
+          createdAt: Date.now()
+        });
+      }
+    } else {
+      // Modo local mientras se configura Firebase
+      if (editingId) {
+        items.forEach(function (o) {
+          if (o.id == editingId) {
+            o.n = nombre;
+            o.pr = precio;
+            o.d = desc;
+            if (photoDataUrl) o.img = photoDataUrl;
+          }
+        });
+      } else {
+        items.unshift({
+          id: String(Date.now()),
+          n: nombre,
+          pr: precio,
+          d: desc,
+          e: "🎁",
+          img: photoDataUrl,
+          s: false
+        });
+      }
+      render();
+    }
+
+    resetForm();
+  } catch (err) {
+    alert("Ocurrió un error al guardar en Firebase: " + err.message);
+    $("pub").textContent = originalText;
+  } finally {
+    $("pub").disabled = false;
+  }
+};
+
+/* =========================================================================
+   6. ACCIONES DEL CATÁLOGO: MARCAR VENDIDO, EDITAR Y BORRAR
+   ========================================================================= */
+$("grid").addEventListener("click", async function (e) {
+  const btn = e.target.closest("button");
+  if (!btn || !isAdmin) return;
+
+  const sId = btn.getAttribute("data-s");
+  const eId = btn.getAttribute("data-e");
+  const xId = btn.getAttribute("data-x");
+
+  // Marcar o desmarcar ¡VENDIDO!
+  if (sId) {
+    const prod = items.find(function (o) { return o.id == sId; });
+    if (!prod) return;
+    if (isFirebaseConfigured) {
+      await updateDoc(doc(db, "productos", sId), { s: !prod.s });
+    } else {
+      prod.s = !prod.s;
+      render();
+    }
+  }
+
+  // Editar producto existente
+  if (eId) {
+    const prod = items.find(function (o) { return o.id == eId; });
+    if (!prod) return;
+    editingId = prod.id;
+    photoDataUrl = "";
+    photoBlob = null;
+    $("n").value = prod.n || "";
+    $("pr").value = prod.pr || "";
+    $("d").value = prod.d || "";
+    $("pv").innerHTML = prod.img ? '<img src="' + esc(prod.img) + '" alt="Foto actual">' : "";
+    $("pub").textContent = "💾 Guardar cambios";
+    $("cancelEdit").classList.remove("hide");
+    window.location.hash = "#/admin";
+    $("form").classList.remove("hide");
+    $("form").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Borrar producto (y su imagen en Storage)
+  if (xId) {
+    const prod = items.find(function (o) { return o.id == xId; });
+    if (!prod) return;
+    if (!confirm('¿Seguro que quieres borrar "' + prod.n + '"?')) return;
+    if (isFirebaseConfigured) {
+      if (prod.storagePath) {
+        try { await deleteObject(storageRef(storage, prod.storagePath)); } catch (_) {}
+      }
+      await deleteDoc(doc(db, "productos", xId));
+    } else {
+      items = items.filter(function (o) { return o.id != xId; });
+      render();
+    }
+  }
+});
+
+/* =========================================================================
+   7. CONTADOR DE VISITAS REAL CON FIRESTORE (Y FALLBACK LOCAL)
+   ========================================================================= */
+async function initVisitCounter() {
+  if (isFirebaseConfigured) {
+    try {
+      const vRef = doc(db, "config", "visitas");
+      if (!sessionStorage.getItem("visit_counted")) {
+        sessionStorage.setItem("visit_counted", "1");
+        const snap = await getDoc(vRef);
+        if (!snap.exists()) {
+          await setDoc(vRef, { count: 4218 });
+        } else {
+          await updateDoc(vRef, { count: increment(1) });
+        }
+      }
+      const current = await getDoc(vRef);
+      const countVal = current.exists() ? current.data().count : 4218;
+      $("cnt").textContent = ("000000" + countVal).slice(-6);
+      return;
+    } catch (_) {}
+  }
+  let c = 4217;
+  try {
+    c = parseInt(localStorage.getItem("v") || "4217", 10) + 1;
+    localStorage.setItem("v", c);
+  } catch (_) {}
+  $("cnt").textContent = ("000000" + c).slice(-6);
+}
+initVisitCounter();
+
+/* =========================================================================
+   8. RASTRO DE ESTRELLITAS Y GIFS CON EL CURSOR O EL DEDO
+   ========================================================================= */
+const trailGifs = [
+  "assets/gifs/sparkle.gif",
+  "assets/gifs/heart.gif",
+  "assets/gifs/star.gif",
+  "assets/gifs/butterfly.gif"
+];
+const trailFallback = ["✨", "💖", "⭐", "🦋", "✦"];
+let last = 0;
+
+function trail(x, y) {
+  const n = Date.now();
+  if (n - last < 65) return;
+  last = n;
+  const s = document.createElement("span");
+  s.className = "spark";
+  if (Math.random() < 0.7) {
+    const img = document.createElement("img");
+    img.src = trailGifs[Math.floor(Math.random() * trailGifs.length)];
+    img.alt = "✨";
+    img.onerror = function () { s.textContent = trailFallback[Math.floor(Math.random() * trailFallback.length)]; };
+    s.appendChild(img);
+  } else {
+    s.textContent = trailFallback[Math.floor(Math.random() * trailFallback.length)];
+  }
+  s.style.left = x + "px";
+  s.style.top = y + "px";
+  document.body.appendChild(s);
+  setTimeout(function () { s.remove(); }, 900);
+}
+
+document.addEventListener("mousemove", function (e) { trail(e.clientX, e.clientY); });
+document.addEventListener("touchmove", function (e) { trail(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+
+handleRoute();
+</script>
+</body>
+</html>
