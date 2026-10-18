@@ -181,17 +181,21 @@ const fallbackItems = [
 ];
 
 let app = null, auth = null, db = null, storage = null;
+let storageAvailable = true;
 if (isFirebaseConfigured) {
   app = initializeApp(FIREBASE_CONFIG);
   auth = getAuth(app);
   db = getFirestore(app);
   storage = getStorage(app);
+  storage.maxUploadRetryTime = 2500;
+  storage.maxOperationRetryTime = 2500;
 }
 
 let items = isFirebaseConfigured ? [] : fallbackItems.slice();
 let isAdmin = false;
 let photoDataUrl = "";
 let photoBlob = null;
+let photoProcessingPromise = null;
 let editingId = null;
 
 function $(id) { return document.getElementById(id); }
@@ -242,7 +246,8 @@ function render() {
     return;
   }
   $("grid").innerHTML = items.map(function (o) {
-    const imgHtml = o.img
+    const hasImg = Boolean(o.img && String(o.img).trim());
+    const imgHtml = hasImg
       ? '<img src="' + esc(o.img) + '" alt="' + esc(o.n) + '" loading="lazy" decoding="async">'
       : (esc(o.e) || "🎁");
     const toolsHtml = isAdmin
@@ -356,6 +361,7 @@ function resetForm() {
   editingId = null;
   photoDataUrl = "";
   photoBlob = null;
+  photoProcessingPromise = null;
   ["n", "pr", "d"].forEach(function (i) { $(i).value = ""; });
   $("pv").innerHTML = "";
   $("f").value = "";
@@ -376,30 +382,78 @@ $("cancelEdit").onclick = function () {
 };
 
 $("f").onchange = function (e) {
-  const file = e.target.files[0];
+  const file = e.target.files && e.target.files[0];
   if (!file) return;
-  const r = new FileReader();
-  r.onload = function () {
-    const im = new Image();
-    im.onload = function () {
-      const m = 700;
-      const k = Math.min(1, m / Math.max(im.width, im.height));
-      const c = document.createElement("canvas");
-      c.width = Math.round(im.width * k);
-      c.height = Math.round(im.height * k);
-      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
-      photoDataUrl = c.toDataURL("image/jpeg", 0.8);
-      $("pv").innerHTML = '<img src="' + photoDataUrl + '" alt="Vista previa">';
-      c.toBlob(function (blob) {
-        photoBlob = blob;
-      }, "image/jpeg", 0.8);
+  $("pv").innerHTML = '<p class="note">⏳ Procesando foto...</p>';
+
+  photoProcessingPromise = new Promise(function (resolve) {
+    const r = new FileReader();
+    r.onload = function () {
+      const im = new Image();
+      im.onload = function () {
+        const m = 650;
+        const k = Math.min(1, m / Math.max(im.width, im.height));
+        const c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(im.width * k));
+        c.height = Math.max(1, Math.round(im.height * k));
+        c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+        photoDataUrl = c.toDataURL("image/jpeg", 0.78);
+        $("pv").innerHTML = '<img src="' + photoDataUrl + '" alt="Vista previa">';
+        if (c.toBlob) {
+          c.toBlob(function (blob) {
+            photoBlob = blob;
+            resolve();
+          }, "image/jpeg", 0.78);
+        } else {
+          resolve();
+        }
+      };
+      im.onerror = function () {
+        $("pv").innerHTML = '<p class="msg-err">No se pudo leer la imagen 😢</p>';
+        resolve();
+      };
+      im.src = r.result;
     };
-    im.src = r.result;
-  };
-  r.readAsDataURL(file);
+    r.onerror = function () { resolve(); };
+    r.readAsDataURL(file);
+  });
 };
 
+// Sube a Storage con tiempo límite de 2.5s; si Storage no está habilitado o da 403/CORS,
+// respalda automáticamente la imagen optimizada (photoDataUrl) en Firestore.
+async function uploadPhotoWithFallback(existingStoragePath) {
+  if (!photoDataUrl && !photoBlob) return null;
+
+  if (storage && storageAvailable && photoBlob) {
+    try {
+      const newPath = "productos/" + Date.now() + "_" + Math.random().toString(36).slice(2, 8) + ".jpg";
+      const sRef = storageRef(storage, newPath);
+      const uploadTask = (async function () {
+        await uploadBytes(sRef, photoBlob, { contentType: "image/jpeg" });
+        return await getDownloadURL(sRef);
+      })();
+      const timeoutTask = new Promise(function (_, reject) {
+        setTimeout(function () { reject(new Error("Storage timeout")); }, 2800);
+      });
+      const downloadUrl = await Promise.race([uploadTask, timeoutTask]);
+      if (existingStoragePath) {
+        try { await deleteObject(storageRef(storage, existingStoragePath)); } catch (_) {}
+      }
+      return { imgUrl: downloadUrl, storagePath: newPath };
+    } catch (err) {
+      storageAvailable = false;
+      console.warn("Firebase Storage no disponible, guardando foto comprimida directamente en Firestore:", err.message);
+    }
+  }
+
+  return { imgUrl: photoDataUrl, storagePath: "" };
+}
+
 $("pub").onclick = async function () {
+  if (photoProcessingPromise) {
+    await photoProcessingPromise;
+  }
+
   const nombre = $("n").value.trim();
   const precio = $("pr").value.trim();
   const desc = $("d").value.trim();
@@ -415,23 +469,17 @@ $("pub").onclick = async function () {
 
   try {
     if (isFirebaseConfigured) {
-      let imgUrl = "";
-      let storagePath = "";
       const existing = editingId ? items.find(function (o) { return o.id === editingId; }) : null;
-      if (existing) {
-        imgUrl = existing.img || "";
-        storagePath = existing.storagePath || "";
-      }
+      let imgUrl = existing ? (existing.img || "") : "";
+      let storagePath = existing ? (existing.storagePath || "") : "";
 
-      // Si seleccionó una foto nueva, subirla a Firebase Cloud Storage
-      if (photoBlob) {
-        if (existing && existing.storagePath) {
-          try { await deleteObject(storageRef(storage, existing.storagePath)); } catch (_) {}
+      // Si la vendedora seleccionó una foto nueva
+      if (photoDataUrl || photoBlob) {
+        const uploaded = await uploadPhotoWithFallback(storagePath);
+        if (uploaded) {
+          imgUrl = uploaded.imgUrl;
+          storagePath = uploaded.storagePath;
         }
-        storagePath = "productos/" + Date.now() + "_" + Math.random().toString(36).slice(2, 8) + ".jpg";
-        const sRef = storageRef(storage, storagePath);
-        await uploadBytes(sRef, photoBlob, { contentType: "image/jpeg" });
-        imgUrl = await getDownloadURL(sRef);
       }
 
       if (editingId) {
@@ -440,7 +488,8 @@ $("pub").onclick = async function () {
           pr: precio,
           d: desc,
           img: imgUrl,
-          storagePath: storagePath
+          storagePath: storagePath,
+          s: existing ? Boolean(existing.s) : false
         });
       } else {
         await addDoc(collection(db, "productos"), {
@@ -480,6 +529,7 @@ $("pub").onclick = async function () {
     }
 
     resetForm();
+    $("vitrina").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (err) {
     alert("Ocurrió un error al guardar en Firebase: " + err.message);
     $("pub").textContent = originalText;
@@ -518,6 +568,8 @@ $("grid").addEventListener("click", async function (e) {
     editingId = prod.id;
     photoDataUrl = "";
     photoBlob = null;
+    photoProcessingPromise = null;
+    $("f").value = "";
     $("n").value = prod.n || "";
     $("pr").value = prod.pr || "";
     $("d").value = prod.d || "";
